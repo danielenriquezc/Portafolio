@@ -1,0 +1,12 @@
+# Instrucciones para el CV
+
+1. Crea tu CV en formato PDF
+2. Guárdalo como "cv.pdf" en esta carpeta public
+3. El botón de "Descargar CV" funcionará automáticamente
+
+## Recomendaciones para tu CV:
+- Máximo 1-2 páginas
+- Incluye: datos de contacto, perfil profesional, experiencia, formación, habilidades
+- Formato limpio y profesional
+- Sin faltas de ortografía
+- Guarda el archivo como: cv.pdf o curriculum.pdf
