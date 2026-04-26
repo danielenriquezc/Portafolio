@@ -7,5 +7,5 @@ export default defineConfig({
   optimizeDeps: {
     include: ['lucide-react', 'framer-motion'],
   },
-  base: 'https://danielenriquezc.github.io/portfolio/'
+  base: '/'
 })
