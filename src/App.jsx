@@ -24,14 +24,35 @@ const Icons = {
       <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
     </svg>
   ),
-  Mail: (props) => (
+  // Mail: (props) => (
+  //   <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  //     <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+  //   </svg>
+  // ),
+  Instagram: (props) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
     </svg>
   ),
+
   ExternalLink: (props) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    </svg>
+  ),
+  ReactIcon: (props) => (
+    <svg {...props}  width="24" height="24" viewBox="-11.5 -10.23174 23 20.46348" xmlns="http://w3.org">
+      <circle cx="0" cy="0" r="2.05" fill="currentColor"/>
+      <g fill="none" stroke="currentColor" strokeWidth="1">
+        <ellipse rx="11" ry="4.2"/>
+        <ellipse rx="11" ry="4.2" transform="rotate(60)"/>
+        <ellipse rx="11" ry="4.2" transform="rotate(120)"/>
+      </g>
+    </svg>
+  ),
+  JavaScriptIcon: (props) => (
+    <svg {...props} xmlns="http://w3.org" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 3h18v18H3z"/><path d="M15 8l-2 8"/><path d="M10 8l-2 4 2 4"/>
     </svg>
   ),
   Code: (props) => (
@@ -103,12 +124,153 @@ function App() {
   })
   const [activeSection, setActiveSection] = useState('home')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [typedText, setTypedText] = useState('')
+  const [cursorVisible, setCursorVisible] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 })
+  const [cursorDotPos, setCursorDotPos] = useState({ x: 0, y: 0 })
+  const [isHovering, setIsHovering] = useState(false)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
   }, [theme])
 
+  // Typewriter Effect
+  useEffect(() => {
+    const textToType = portfolioData.subtitle
+    const typeSpeed = 80
+    const deleteSpeed = 40
+    const pauseTime = 2000
+
+    let timeoutId
+
+    const type = () => {
+      if (!isDeleting && typedText.length < textToType.length) {
+        timeoutId = setTimeout(() => {
+          setTypedText(textToType.substring(0, typedText.length + 1))
+        }, typeSpeed)
+      } else if (isDeleting && typedText.length > 0) {
+        timeoutId = setTimeout(() => {
+          setTypedText(textToType.substring(0, typedText.length - 1))
+        }, deleteSpeed)
+      } else if (!isDeleting && typedText.length === textToType.length) {
+        timeoutId = setTimeout(() => {
+          setIsDeleting(true)
+        }, pauseTime)
+      } else if (isDeleting && typedText.length === 0) {
+        setIsDeleting(false)
+      }
+    }
+
+    timeoutId = type()
+    return () => clearTimeout(timeoutId)
+  }, [typedText, isDeleting])
+
+  // Cursor parpadeante
+  useEffect(() => {
+    const cursorInterval = setInterval(() => {
+      setCursorVisible(prev => !prev)
+    }, 500)
+    return () => clearInterval(cursorInterval)
+  }, [])
+
+  // Custom Cursor con trailing effect
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setCursorPos({ x: e.clientX, y: e.clientY })
+      // Trailing effect con delay
+      setTimeout(() => {
+        setCursorDotPos({ x: e.clientX, y: e.clientY })
+      }, 50)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  // Hover effect para cursor
+  useEffect(() => {
+    const clickableElements = document.querySelectorAll('button, a, .btn, [role="button"]')
+
+    const handleMouseEnter = () => setIsHovering(true)
+    const handleMouseLeave = () => setIsHovering(false)
+
+    clickableElements.forEach(el => {
+      el.addEventListener('mouseenter', handleMouseEnter)
+      el.addEventListener('mouseleave', handleMouseLeave)
+    })
+
+    return () => {
+      clickableElements.forEach(el => {
+        el.removeEventListener('mouseenter', handleMouseEnter)
+        el.removeEventListener('mouseleave', handleMouseLeave)
+      })
+    }
+  }, [])
+
+  // Navbar scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const navbar = document.querySelector('.navbar')
+      if (navbar) {
+        if (window.scrollY > 50) {
+          navbar.classList.add('scrolled')
+        } else {
+          navbar.classList.remove('scrolled')
+        }
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Scroll Reveal con IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed')
+          }
+        })
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    )
+
+    const revealElements = document.querySelectorAll('.scroll-reveal')
+    revealElements.forEach(el => observer.observe(el))
+
+    return () => observer.disconnect()
+  }, [])
+
+  // Inicializar scroll reveal cuando el componente se monta
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const revealElements = document.querySelectorAll('.scroll-reveal')
+      revealElements.forEach(el => {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('revealed')
+              }
+            })
+          },
+          { threshold: 0.1 }
+        )
+        observer.observe(el)
+      })
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Active section tracking
   useEffect(() => {
     const handleScroll = () => {
       const sections = ['home', 'about', 'skills', 'experience', 'projects', 'contact']
@@ -144,14 +306,14 @@ function App() {
 
   // Datos del portafolio - EDITA ESTOS VALORES
   const portfolioData = {
-    name: "Tu Nombre",
-    title: "Desarrollador Full Stack",
+    name: "Daniel Enriquez",
+    title: "Desarrollador Full Stack (en proceso)",//"Desarrollador Full Stack",
     subtitle: "Creo experiencias digitales increíbles",
     description: "Soy un desarrollador apasionado por crear aplicaciones web modernas y escalables. Me especializo en React, Node.js y tecnologías cloud.",
-    location: "Tu Ciudad, País",
-    email: "tu.email@ejemplo.com",
-    github: "https://github.com/tu-usuario",
-    linkedin: "https://linkedin.com/in/tu-usuario",
+    location: "Lima, Perú",
+    instagram: "https://instagram.com/thedanieldev",
+    github: "https://github.com/danielenriquezc",
+    linkedin: "https://linkedin.com/in/daniel-enriquez-47070731a/",
     avatar: "https://via.placeholder.com/400x400/6366f1/ffffff?text=Tu+Foto",
     cvUrl: "/cv.pdf", // Tu CV en PDF en la carpeta public
 
@@ -165,11 +327,11 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
 
     skills: {
       technical: [
-        { name: "React", icon: "Code", level: 95, category: "Frontend" },
-        { name: "JavaScript", icon: "Terminal", level: 90, category: "Frontend" },
-        { name: "TypeScript", icon: "Code", level: 85, category: "Frontend" },
+        { name: "React", icon: "ReactIcon", level: 70, category: "Frontend" },
+        { name: "JavaScript", icon: "JavaScriptIcon", level: 80, category: "Frontend" },
+        { name: "TypeScript", icon: "Code", level: 60, category: "Frontend" },
         { name: "Node.js", icon: "Terminal", level: 88, category: "Backend" },
-        { name: "Python", icon: "Code", level: 82, category: "Backend" },
+        { name: "Python", icon: "Code", level: 72, category: "Backend" },
         { name: "PostgreSQL", icon: "Terminal", level: 80, category: "Database" },
         { name: "MongoDB", icon: "Code", level: 85, category: "Database" },
         { name: "Docker", icon: "Terminal", level: 75, category: "DevOps" },
@@ -177,13 +339,39 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
         { name: "Git", icon: "Terminal", level: 90, category: "Tools" },
       ],
       soft: [
-        { name: "Comunicación efectiva", level: 90 },
-        { name: "Trabajo en equipo", level: 95 },
+        { name: "Comunicación efectiva", level: 100 },
+        { name: "Trabajo en equipo", level: 100 },
         { name: "Resolución de problemas", level: 92 },
         { name: "Liderazgo técnico", level: 85 },
         { name: "Gestión del tiempo", level: 88 },
         { name: "Adaptabilidad", level: 90 },
-      ]
+      ],
+      // Skills con logos de Simple Icons
+      logos: {
+        lenguajes: [
+          { name: "HTML", level: "Avanzado", simpleIcon: "html5" },
+          { name: "CSS", level: "Avanzado", simpleIcon: "css3" },
+          { name: "JavaScript", level: "Avanzado", simpleIcon: "javascript" },
+          { name: "TypeScript", level: "Intermedio", simpleIcon: "typescript" },
+          { name: "PHP", level: "Intermedio", simpleIcon: "php" },
+          { name: "Python", level: "Intermedio", simpleIcon: "python" },
+          { name: "Java", level: "Intermedio", simpleIcon: "java" },
+        ],
+        frameworks: [
+          { name: "React", level: "Avanzado", simpleIcon: "react" },
+          { name: "Angular", level: "Intermedio", simpleIcon: "angular" },
+          { name: "jQuery", level: "Intermedio", simpleIcon: "jquery" },
+        ],
+        database: [
+          { name: "MySQL", level: "Avanzado", simpleIcon: "mysql" },
+          { name: "MongoDB", level: "Avanzado", simpleIcon: "mongodb" },
+          { name: "Node.js", level: "Avanzado", simpleIcon: "nodedotjs" },
+        ],
+        herramientas: [
+          { name: "Git", level: "Avanzado", simpleIcon: "git" },
+          { name: "GitHub", level: "Avanzado", simpleIcon: "github" },
+        ]
+      }
     },
 
     projects: [
@@ -277,6 +465,41 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
     return <IconComponent size={size} />
   }
 
+  // Ripple Effect handler
+  const handleRipple = (e) => {
+    const button = e.currentTarget
+    const ripple = document.createElement('span')
+    ripple.classList.add('ripple')
+
+    const rect = button.getBoundingClientRect()
+    const size = Math.max(rect.width, rect.height)
+    ripple.style.width = ripple.style.height = size + 'px'
+    ripple.style.left = e.clientX - rect.left - size / 2 + 'px'
+    ripple.style.top = e.clientY - rect.top - size / 2 + 'px'
+
+    button.appendChild(ripple)
+
+    setTimeout(() => ripple.remove(), 600)
+  }
+
+  // Tilt 3D Effect handler
+  const handleTilt = (e) => {
+    const card = e.currentTarget
+    const rect = card.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+    const rotateX = (y - centerY) / 10
+    const rotateY = (centerX - x) / 10
+
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`
+  }
+
+  const handleTiltReset = (e) => {
+    e.currentTarget.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)'
+  }
+
   return (
     <div className="app">
       {/* Navigation */}
@@ -344,29 +567,23 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
           <div className="gradient-orb orb-3"></div>
         </div>
 
+        {/* Nombre ENORME en el fondo */}
+        <div className="hero-title-huge">{portfolioData.name.split(' ')[0]}</div>
+
+        {/* Contenido izquierdo */}
         <motion.div
           className="hero-content"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <motion.div
-            className="hero-avatar"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <img src={portfolioData.avatar} alt={portfolioData.name} />
-            <div className="avatar-glow"></div>
-          </motion.div>
-
           <motion.p
             className="hero-greeting"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            👋 Hola, soy
+            HOLA, SOY
           </motion.p>
 
           <motion.h1
@@ -387,30 +604,41 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
             {portfolioData.title}
           </motion.h2>
 
-          <motion.p
-            className="hero-description"
+          {/* Typewriter Effect */}
+          <motion.div
+            className="typewriter-container"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.8 }}
           >
-            {portfolioData.subtitle}
+            <span className="typewriter-text">{typedText}</span>
+            <span className="typewriter-cursor" style={{ opacity: cursorVisible ? 1 : 0 }}></span>
+          </motion.div>
+
+          <motion.p
+            className="hero-description"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.9 }}
+          >
+            {portfolioData.description}
           </motion.p>
 
           <motion.div
             className="hero-buttons"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.9 }}
+            transition={{ duration: 0.5, delay: 1 }}
           >
-            <a href={portfolioData.cvUrl} download className="btn btn-primary">
+            <a href={portfolioData.cvUrl} download className="btn btn-primary" onClick={handleRipple}>
               Descargar CV
               <Icons.Download size={18} />
             </a>
-            <button className="btn btn-secondary" onClick={() => scrollToSection('projects')}>
+            <button className="btn btn-secondary" onClick={(e) => { handleRipple(e); scrollToSection('projects'); }}>
               Ver Proyectos
               <Icons.ArrowRight size={18} />
             </button>
-            <button className="btn btn-secondary" onClick={() => scrollToSection('contact')}>
+            <button className="btn btn-secondary" onClick={(e) => { handleRipple(e); scrollToSection('contact'); }}>
               Contactar
               <Icons.Send size={18} />
             </button>
@@ -420,18 +648,31 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
             className="hero-social"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 1 }}
+            transition={{ duration: 0.5, delay: 1.1 }}
           >
-            <a href={portfolioData.github} target="_blank" rel="noopener noreferrer">
+            <a href={portfolioData.github} target="_blank" rel="noopener noreferrer" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
               <Icons.Github size={24} />
             </a>
-            <a href={portfolioData.linkedin} target="_blank" rel="noopener noreferrer">
+            <a href={portfolioData.linkedin} target="_blank" rel="noopener noreferrer" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
               <Icons.Linkedin size={24} />
             </a>
-            <a href={`mailto:${portfolioData.email}`}>
-              <Icons.Mail size={24} />
+            <a href={portfolioData.instagram} target="_blank" rel="noopener noreferrer" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
+              <Icons.Instagram size={24} />
             </a>
           </motion.div>
+        </motion.div>
+
+        {/* Avatar lado derecho */}
+        <motion.div
+          className="hero-avatar-container"
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+        >
+          <div className="hero-avatar">
+            <img src={portfolioData.avatar} alt={portfolioData.name} />
+            <div className="avatar-glow"></div>
+          </div>
         </motion.div>
 
         <motion.div
@@ -445,8 +686,25 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
         </motion.div>
       </section>
 
+      {/* Custom Cursor */}
+      <div
+        className="custom-cursor"
+        style={{
+          left: cursorPos.x,
+          top: cursorPos.y,
+          transform: `translate(-50%, -50%) scale(${isHovering ? 1.5 : 1})`,
+        }}
+      />
+      <div
+        className="custom-cursor-dot"
+        style={{
+          left: cursorDotPos.x,
+          top: cursorDotPos.y,
+        }}
+      />
+
       {/* About Section */}
-      <section id="about" className="about-section">
+      <section id="about" className="about-section scroll-reveal">
         <motion.div
           className="section-container"
           initial={{ opacity: 0, y: 50 }}
@@ -482,8 +740,8 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
                   <span>{portfolioData.location}</span>
                 </div>
                 <div className="info-item">
-                  <Icons.Mail size={20} />
-                  <span>{portfolioData.email}</span>
+                  <Icons.Instagram size={20} />
+                  <span>{portfolioData.instagram}</span>
                 </div>
               </div>
             </motion.div>
@@ -542,7 +800,7 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
       </section>
 
       {/* Skills Section */}
-      <section id="skills" className="skills-section">
+      <section id="skills" className="skills-section scroll-reveal">
         <motion.div
           className="section-container"
           initial={{ opacity: 0, y: 50 }}
@@ -658,11 +916,140 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
               ))}
             </div>
           </motion.div>
+
+          {/* Skills con Logos de Simple Icons */}
+          <motion.div
+            className="skills-logos-container scroll-reveal"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            {/* Lenguajes */}
+            <div className="skills-category-logos" data-category="lenguajes">
+              <h3 className="skills-category-title">Lenguajes</h3>
+              <div className="skills-logos-grid">
+                {portfolioData.skills.logos.lenguajes.map((skill, index) => (
+                  <motion.div
+                    key={skill.name}
+                    className="skill-logo-card"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    style={{ '--skill-accent': '#6366f1', '--skill-bg': 'rgba(99, 102, 241, 0.1)' }}
+                    onMouseMove={handleTilt}
+                    onMouseLeave={handleTiltReset}
+                  >
+                    <div className="skill-icon-wrapper">
+                      <img
+                        src={`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${skill.simpleIcon}.svg`}
+                        alt={skill.name}
+                        style={{ filter: 'invert(1)' }}
+                      />
+                    </div>
+                    <span className="skill-name">{skill.name}</span>
+                    <span className="skill-level-badge">{skill.level}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Frameworks & Librerías */}
+            <div className="skills-category-logos" data-category="frameworks">
+              <h3 className="skills-category-title">Frameworks & Librerías</h3>
+              <div className="skills-logos-grid">
+                {portfolioData.skills.logos.frameworks.map((skill, index) => (
+                  <motion.div
+                    key={skill.name}
+                    className="skill-logo-card"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    style={{ '--skill-accent': '#8b5cf6', '--skill-bg': 'rgba(139, 92, 246, 0.1)' }}
+                    onMouseMove={handleTilt}
+                    onMouseLeave={handleTiltReset}
+                  >
+                    <div className="skill-icon-wrapper">
+                      <img
+                        src={`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${skill.simpleIcon}.svg`}
+                        alt={skill.name}
+                        style={{ filter: 'invert(1)' }}
+                      />
+                    </div>
+                    <span className="skill-name">{skill.name}</span>
+                    <span className="skill-level-badge">{skill.level}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Base de Datos & Runtime */}
+            <div className="skills-category-logos" data-category="database">
+              <h3 className="skills-category-title">Base de Datos & Runtime</h3>
+              <div className="skills-logos-grid">
+                {portfolioData.skills.logos.database.map((skill, index) => (
+                  <motion.div
+                    key={skill.name}
+                    className="skill-logo-card"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    style={{ '--skill-accent': '#06b6d4', '--skill-bg': 'rgba(6, 182, 212, 0.1)' }}
+                    onMouseMove={handleTilt}
+                    onMouseLeave={handleTiltReset}
+                  >
+                    <div className="skill-icon-wrapper">
+                      <img
+                        src={`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${skill.simpleIcon}.svg`}
+                        alt={skill.name}
+                        style={{ filter: 'invert(1)' }}
+                      />
+                    </div>
+                    <span className="skill-name">{skill.name}</span>
+                    <span className="skill-level-badge">{skill.level}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Herramientas */}
+            <div className="skills-category-logos" data-category="herramientas">
+              <h3 className="skills-category-title">Herramientas</h3>
+              <div className="skills-logos-grid">
+                {portfolioData.skills.logos.herramientas.map((skill, index) => (
+                  <motion.div
+                    key={skill.name}
+                    className="skill-logo-card"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    style={{ '--skill-accent': '#d946ef', '--skill-bg': 'rgba(217, 70, 239, 0.1)' }}
+                    onMouseMove={handleTilt}
+                    onMouseLeave={handleTiltReset}
+                  >
+                    <div className="skill-icon-wrapper">
+                      <img
+                        src={`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${skill.simpleIcon}.svg`}
+                        alt={skill.name}
+                        style={{ filter: 'invert(1)' }}
+                      />
+                    </div>
+                    <span className="skill-name">{skill.name}</span>
+                    <span className="skill-level-badge">{skill.level}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </motion.div>
       </section>
 
       {/* Experience Section - Education, Languages, Certifications */}
-      <section id="experience" className="experience-section-main">
+      <section id="experience" className="experience-section-main scroll-reveal">
         <motion.div
           className="section-container"
           initial={{ opacity: 0, y: 50 }}
@@ -788,7 +1175,7 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="projects-section">
+      <section id="projects" className="projects-section scroll-reveal">
         <motion.div
           className="section-container"
           initial={{ opacity: 0, y: 50 }}
@@ -858,7 +1245,7 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="contact-section">
+      <section id="contact" className="contact-section scroll-reveal">
         <motion.div
           className="section-container"
           initial={{ opacity: 0, y: 50 }}
@@ -896,11 +1283,11 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
             >
               <div className="contact-card">
                 <div className="contact-icon">
-                  <Icons.Mail size={32} />
+                  <Icons.Instagram size={32} />
                 </div>
-                <h3>Email</h3>
-                <p>{portfolioData.email}</p>
-                <a href={`mailto:${portfolioData.email}`}>Enviar mensaje</a>
+                <h3>Instagram</h3>
+                <p>Conectemos</p>
+                <a href={portfolioData.instagram} target="_blank" rel="noopener noreferrer">Visitar perfil</a>
               </div>
 
               <div className="contact-card">
@@ -965,8 +1352,8 @@ Mi enfoque se centra en escribir código limpio, escalable y mantenible, siempre
             <a href={portfolioData.linkedin} target="_blank" rel="noopener noreferrer">
               <Icons.Linkedin size={20} />
             </a>
-            <a href={`mailto:${portfolioData.email}`}>
-              <Icons.Mail size={20} />
+            <a href={portfolioData.instagram} target="_blank" rel="noopener noreferrer">
+              <Icons.Instagram size={20} />
             </a>
           </div>
         </div>
